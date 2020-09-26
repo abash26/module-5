@@ -7,7 +7,7 @@ router.get('/usergroup', async (req, res) => {
   await getAll(req, res);
 });
 
-router.post('/:userId/:groupId', async (req, res) => {
+router.post('/addtogroup', async (req, res) => {
   await addUsersToGroup(req, res);
 });
 

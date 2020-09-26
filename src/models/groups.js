@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+const faker = require('faker');
 
 const Groups = sequelize.define('groups', {
   name: {
@@ -13,11 +14,12 @@ const Groups = sequelize.define('groups', {
   },
 });
 
-Groups.sync().then(() => {
-  Groups.create({
-    name: 'editor',
-    permissions: ['EDIT'],
+(async () => {
+  await sequelize.sync();
+  await Groups.create({
+    name: faker.name.jobDescriptor(),
+    permissions: ['WRITE', 'READ'],
   });
-});
+})();
 
 module.exports = Groups;

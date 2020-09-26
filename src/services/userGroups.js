@@ -1,34 +1,32 @@
 const userGroups = require('../models/userGroups');
 const Groups = require('../models/groups');
 const Users = require('../models/users');
+const sequelize = require('../db');
 
 async function getAll(req, res) {
-  const users = await userGroups.findAll();
-  res.status(200).json(users);
+  try {
+    const users = await userGroups.findAll();
+    res.status(200).send(users);
+  } catch (e) {
+    res.status(400).send(e);
+  }
 }
 
-const addUsersToGroup = (groupId, userId) => {
-  return Users.findByPk(userId)
-    .then((user) => {
-      if (!user) {
-        console.log('user not found!');
-        return null;
-      }
-      return Groups.findByPk(groupId).then((group) => {
-        if (!group) {
-          console.log('Tutorial not found!');
-          return null;
-        }
-
-        user.addUsersToGroup(group);
-        console.log(`>> added`);
-        return user;
+// add multiple users to group (body {"users": [1, 2],"group": 1})
+async function addUsersToGroup(req, res) {
+  const { users, group } = req.body;
+  for (var i = 0; i < users.length; i++) {
+    try {
+      await sequelize.transaction(async (t) => {
+        const user = await Users.findByPk(users[i], { transaction: t });
+        await user.addGroup(group, { transaction: t });
       });
-    })
-    .catch((err) => {
-      console.log('>> Error while adding Tutorial to Tag: ', err);
-    });
-};
+    } catch (e) {
+      res.status(500).json(e);
+    }
+  }
+  res.status(200).json();
+}
 
 module.exports = {
   getAll,

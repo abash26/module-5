@@ -1,37 +1,57 @@
 const Groups = require('../models/groups');
-const Users = require('../models/users');
+const userGroups = require('../models/userGroups');
 
 async function getAll(req, res) {
-  const groups = await Groups.findAll();
-  res.status(200).json(groups);
+  try {
+    const groups = await Groups.findAll();
+    res.status(200).send(groups);
+  } catch (e) {
+    res.status(400).send(e);
+  }
 }
 
 async function getById(req, res) {
-  const group = await Groups.findByPk(req.params.id);
-  if (group) {
-    res.status(200).json(group);
-  } else {
-    res.status(404).send('404 - Not found');
+  try {
+    const group = await Groups.findByPk(req.params.id);
+    res.status(200).send(group);
+  } catch (e) {
+    res.status(400).send(e);
   }
 }
 
 async function create(req, res) {
   if (req.body.id) {
     res.status(400).send('Bad request: ID should not be provided.');
-  } else {
-    await Groups.create(req.body);
-    res.status(201).end();
+  }
+  try {
+    const group = await Groups.create(req.body);
+    res.status(201).send(group);
+  } catch (e) {
+    res.status(400).send(e);
   }
 }
 
 async function update(req, res) {
-  await Groups.update(req.body, { where: { id: req.params.id } });
-  res.status(200).end();
+  try {
+    const group = await Groups.update(req.body, {
+      where: { id: req.params.id },
+    });
+    res.status(200).send(group);
+  } catch (e) {
+    res.status(400).send(e);
+  }
 }
 
 async function remove(req, res) {
-  await Groups.destroy({ where: { id: req.params.id } });
-  res.status(200).end();
+  try {
+    const group = await Groups.destroy({ where: { id: req.params.id } });
+    await userGroups.destroy({
+      where: { groupId: req.params.id },
+    });
+    res.status(200).send(group);
+  } catch (e) {
+    res.status(400).send(e);
+  }
 }
 
 module.exports = {

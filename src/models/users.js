@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
-const { addUsers } = require('../helpers');
 const sequelize = require('../db');
+const faker = require('faker');
 
 const Users = sequelize.define('users', {
   login: {
@@ -26,8 +26,13 @@ const Users = sequelize.define('users', {
   },
 });
 
-Users.sync().then(() => {
-  addUsers();
-});
+(async () => {
+  await sequelize.sync();
+  await Users.create({
+    login: faker.name.firstName(),
+    password: 'pass1121',
+    age: 25,
+  });
+})();
 
 module.exports = Users;
