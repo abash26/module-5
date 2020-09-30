@@ -1,15 +1,41 @@
 const express = require('express');
+const morgan = require('morgan');
+
 const userRouter = require('./routers/users');
 const groupRouter = require('./routers/groups');
 const userGroupRouter = require('./routers/userGroups');
 const Users = require('./models/users');
 const Groups = require('./models/groups');
 const userGroups = require('./models/userGroups');
+const { logErrors, logger } = require('./middleware');
 
 const port = process.env.PORT || 3001;
 
 const app = express();
 app.use(express.json());
+app.use(
+  morgan('combined', {
+    skip: function (req, res) {
+      return res.statusCode < 400;
+    },
+  })
+);
+
+process.on('uncaughtException', (err, origin) => {
+  console.log(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
+});
+
+const unhandledRejections = new Map();
+process.on('unhandledRejection', (reason, promise) => {
+  unhandledRejections.set(promise, reason);
+});
+process.on('rejectionHandled', (promise) => {
+  unhandledRejections.delete(promise);
+});
+
+app.use(logger);
+app.use(logErrors);
+
 app.use(userRouter);
 app.use(groupRouter);
 app.use(userGroupRouter);
