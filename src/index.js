@@ -25,12 +25,8 @@ process.on('uncaughtException', (err, origin) => {
   console.log(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
 });
 
-const unhandledRejections = new Map();
 process.on('unhandledRejection', (reason, promise) => {
-  unhandledRejections.set(promise, reason);
-});
-process.on('rejectionHandled', (promise) => {
-  unhandledRejections.delete(promise);
+  console.log(promise, reason);
 });
 
 app.use(logger);
