@@ -1,6 +1,7 @@
 const Users = require('../models/users');
 const { Op } = require('sequelize');
 const userGroups = require('../models/userGroups');
+const jwt = require('jsonwebtoken');
 
 async function getAll(req, res) {
   try {
@@ -14,6 +15,18 @@ async function getAll(req, res) {
     res.status(200).send(users);
   } catch (e) {
     res.status(400).send(e);
+  }
+}
+
+async function login(req, res) {
+  const { login, password } = req.body;
+  try {
+    const user = await Users.findOne({ where: { login, password } });
+    const token = jwt.sign({ _id: user.id.toString() }, process.env.JWT_SECRET);
+    await user.update({ token: token });
+    res.send({ user });
+  } catch (e) {
+    res.status(400).send();
   }
 }
 
@@ -66,4 +79,5 @@ module.exports = {
   create,
   update,
   remove,
+  login,
 };
