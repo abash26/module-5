@@ -48,9 +48,9 @@ async function remove(req, res) {
     await userGroups.destroy({
       where: { groupId: req.params.id },
     });
-    res.status(200).send(group);
+    res.sendStatus(200).send(group);
   } catch (e) {
-    res.status(400).send(e);
+    res.sendStatus(400).send(e);
   }
 }
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const y = require('dotenv').config({ path: './config/dev.env' });
 
 const userRouter = require('./routers/users');
 const groupRouter = require('./routers/groups');
@@ -9,12 +10,16 @@ const Users = require('./models/users');
 const Groups = require('./models/groups');
 const userGroups = require('./models/userGroups');
 const { logErrors, logger } = require('./middleware');
+const swaggerUi = require('swagger-ui-express');
+swaggerDocument = require('../swagger.json');
 
 const port = process.env.PORT || 3001;
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.use(
   morgan('combined', {
     skip: function (req, res) {
